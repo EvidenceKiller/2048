@@ -38,5 +38,9 @@ public class AnimationCell extends Cell {
         return Math.max(0, 1.0 * ((mTimeElapsed - mDelayTime) / mAnimationTime));
     }
 
+    public boolean isActive() {
+        return (mTimeElapsed >= mDelayTime);
+    }
+
 
 }
