@@ -19,8 +19,23 @@ public class InputListener implements View.OnTouchListener, View.OnKeyListener {
     private static int MOVE_THRESHOLD = 250;
     private static final int RESET_STARTING = 10;
 
-    public InputListener(View view) {
+    private float x;
+    private float y;
+    private float lastDx;
+    private float lastDy;
+    private float previousX;
+    private float previousY;
+    private float startingX;
+    private float startingY;
+    private int previousDirection = 1;
+    private int veryLastDirection = 1;
+    private boolean moved = false;
 
+    private MainView mView;
+
+    public InputListener(MainView view) {
+        super();
+        this.mView = view;
     }
 
     public static void loadSensitivity() {
@@ -50,6 +65,23 @@ public class InputListener implements View.OnTouchListener, View.OnKeyListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        switch(event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                x = event.getX();
+                y = event.getY();
+                startingX = x;
+                startingY = y;
+                previousX = x;
+                previousY = y;
+                lastDx = 0;
+                lastDy = 0;
+                moved = false;
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                if (MainView.inverseMode) {
+                    return true;
+                }
+        }
         return false;
     }
 }

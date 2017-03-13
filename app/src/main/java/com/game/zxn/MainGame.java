@@ -8,6 +8,8 @@ package com.game.zxn;
 
 public class MainGame {
 
-    public Grid
+    public Grid grid;
+
+    public AnimationGrid
 
 }

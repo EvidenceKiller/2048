@@ -15,6 +15,8 @@ public class MainView extends View {
 
     private Paint paint = new Paint();
 
+    public MainGame game;
+
 
     public MainView(Context context) {
         super(context);
