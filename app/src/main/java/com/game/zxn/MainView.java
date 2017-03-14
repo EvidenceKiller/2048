@@ -10,12 +10,13 @@ import android.view.View;
  * Date : 2017-02-19
  * Time : 18:18
  */
-
 public class MainView extends View {
 
     private Paint paint = new Paint();
 
-    public MainGame game;
+    private MainGame game;
+
+    private AI ai;
 
 
     public MainView(Context context) {
