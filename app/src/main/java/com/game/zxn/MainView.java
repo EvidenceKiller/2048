@@ -2,6 +2,7 @@ package com.game.zxn;
 
 import android.content.Context;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -16,7 +17,20 @@ public class MainView extends View {
 
     private MainGame game;
 
+    private InputListener listener;
+
     private AI ai;
+
+    private boolean getScreenSize = true;
+    private int cellSize = 0;
+    private float textSize = 0;
+    private int gridWidth = 0;
+    private int screenMiddleX = 0;
+    private int screenMiddleY = 0;
+    private int boardMiddleX = 0;
+    private int boardMiddleY = 0;
+    private Drawable backgroundRectangle;
+    private Drawable[] cellRectangle = new Drawable[12];
 
 
     public MainView(Context context) {
