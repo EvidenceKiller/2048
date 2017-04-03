@@ -10,6 +10,9 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
+
 /**
  * User : ZXN
  * Date : 2017-02-19
@@ -208,18 +211,139 @@ public class MainView extends View {
                 sXNewGame + iconSize - iconPaddingSize, sYIcons + iconSize - iconPaddingSize);
     }
 
-    public void drawaHeader(Canvas canvas) {
-        
+    public void drawHeader(Canvas canvas) {
+        paint.setTextSize(headerTextSize);
+        paint.setColor(TEXT_BLACK);
+        paint.setTextAlign(Paint.Align.LEFT);
+        int textShiftY = centerText() * 2;
+        int headerStartY = sYAll - textShiftY;
+        canvas.drawText(titleTexts[titleTexts.length - 1], startingX, headerStartY, paint);
     }
 
-    private void getLayout(int width, int height) {
-        cellSize = Math.min(width / (game.numSquaresX + 1), height / (game.numSquaresY + 3));
-        gridWidth = cellSize / 7;
-        screenMiddleX = width / 2;
-        screenMiddleY = height / 2;
-        boardMiddleX = screenMiddleX;
-        boardMiddleY = screenMiddleY + cellSize / 2;
-        iconSize = cellSize / 2;
+    public void drawInstructions(Canvas canvas) {
+        paint.setTextSize(instructionsTextSize);
+        paint.setTextAlign(Paint.Align.LEFT);
+        int textShiftY = centerText() * 2;
+        canvas.drawText(instructions, startingX, endingY - textShiftY + textPaddingSize, paint);
+    }
+
+    public void drawBackground(Canvas canvas) {
+        drawDrawable(canvas, backgroundRectangle, startingX, startingY, endingX, endingY);
+    }
+
+    public void drawBackgroundGrid(Canvas canvas) {
+        for (int x = 0; x < game.numSquaresX; x++) {
+            for (int y = 0; y < game.numSquaresY; y++) {
+                int sX = startingX + gridWidth + (cellSize + gridWidth) + x;
+                int eX = sX + cellSize;
+                int sY = startingY + gridWidth + (cellSize + gridWidth) + y;
+                int eY = sY + cellSize;
+                drawDrawable(canvas, cellRectangle[0], sX, sY, eX, eY);
+            }
+        }
+    }
+
+    public void drawCells(Canvas canvas) {
+        Tile[][] tiles;
+        AnimationGrid aGrid;
+        for (int x = 0; x < game.numSquaresX; x++) {
+            for (int y = 0; y < game.numSquaresY; y++) {
+                int sX = startingX + gridWidth + (cellSize + gridWidth) + x;
+                int eX = sX + cellSize;
+                int sY = startingY + gridWidth + (cellSize + gridWidth) + y;
+                int eY = sY + cellSize;
+
+                Tile currentTile = game.mGrid.filed[x][y];
+                if (null != currentTile) {
+                    int value = currentTile.getValue();
+                    int index = log2(value);
+
+                    ArrayList<AnimationCell> aArray = game.mAnimationGrid.getAnimationCell(x, y);
+                    boolean animated = false;
+                    for (int i = aArray.size() - 1; i >= 0; i--) {
+                        AnimationCell aCell = aArray.get(i);
+                        if (aCell.getAnimationType() == MainGame.SPAWN_ANIMATION) {
+                            animated = false;
+                        }
+                        if (!aCell.isActive()) {
+                            continue;
+                        }
+                        if (aCell.getAnimationType() == MainGame.SPAWN_ANIMATION) {
+                            double percentDone = aCell.getPercentageDone();
+                            float textScaleSize = (float) percentDone;
+                            float cellScaleSize = cellSize / 2 * (1 - textScaleSize);
+                            drawDrawable(canvas, cellRectangle[index],
+                                    (int) (sX + cellScaleSize), (int) (sY + cellScaleSize),
+                                    (int) (eX + cellScaleSize), (int) (eY + cellScaleSize));
+                        } else if (aCell.getAnimationType() == MainGame.MERGE_ANIMATION) {
+                            double percentDone = aCell.getPercentageDone();
+                            float currentVelocity = 0f;
+                            if (percentDone < 0.5f) {
+                                currentVelocity = (float) (MERGING_ACCELERATION * percentDone);
+                            } else {
+                                currentVelocity = (float) (MAX_VELOCITY - MERGING_ACCELERATION
+                                        * (percentDone - 0.5));
+                            }
+                            float textScaleSize = (float) (1 + currentVelocity * percentDone);
+                            float cellScaleSize = cellSize / 2 * (1 - textScaleSize);
+                            drawDrawable(canvas, cellRectangle[index],
+                                    (int) (sX + cellScaleSize), (int) (sY + cellScaleSize),
+                                    (int) (eX - cellScaleSize), (int) (eY - cellScaleSize));
+                        } else if (aCell.getAnimationType() == MainGame.MOVE_ANIMATION) {
+                            double percentDone = aCell.getPercentageDone();
+                            int tempIndex = index;
+                            if (aArray.size() >= 2) {
+                                tempIndex -= 1;
+                            }
+                            int previousX = aCell.mExtras[0];
+                            int previousY = aCell.mExtras[1];
+                            int currentX = currentTile.getX();
+                            int currentY = currentTile.getY();
+                            int dX = (int) ((currentX - previousX) * (cellSize + gridWidth) *
+                                    (percentDone - 1) * (percentDone - 1) * -MOVING_ACCELERATION);
+                            int dY = (int) ((currentY - previousY) * (cellSize + gridWidth) *
+                                    (percentDone - 1) * (percentDone - 1) * -MOVING_ACCELERATION);
+                            drawDrawable(canvas, cellRectangle[tempIndex], sX + dX, sY + dY,
+                                    eX + dX, eY + dY);
+                        }
+                        animated = true;
+                    }
+                    if (!animated) {
+                        drawDrawable(canvas, cellRectangle[index], sX, sY, eX, eY);
+                    }
+                }
+            }
+        }
+    }
+
+    public void drawEndGameState(Canvas canvas) {
+        double alphaChange = 1;
+        for (AnimationCell animation : game.mAnimationGrid.globalAnimation) {
+            if (animation.getAnimationType() == MainGame.FADE_GLOBAL_ANIMATION) {
+                alphaChange = animation.getPercentageDone();
+            }
+        }
+        if (game.won) {
+            lightUpRectangle.setAlpha((int) (127 * alphaChange));
+            drawDrawable(canvas, lightUpRectangle, startingX, startingY, endingX, endingY);
+            lightUpRectangle.setAlpha(255);
+            paint.setColor(TEXT_WHITE);
+            paint.setAlpha((int) (255 * alphaChange));
+            paint.setTextSize(gameOverTextSize);
+            paint.setTextAlign(Paint.Align.CENTER);
+            canvas.drawText(youWin, boardMiddleX, boardMiddleY - centerText(), paint);
+            paint.setAlpha(255);
+        } else if (game.lose) {
+            fadeRectangle.setAlpha((int) (127 * alphaChange));
+            drawDrawable(canvas, fadeRectangle, startingX, startingY, endingX, endingY);
+            fadeRectangle.setAlpha(255);
+            paint.setColor(TEXT_BLACK);
+            paint.setAlpha((int) (255 * alphaChange));
+            paint.setTextSize(gameOverTextSize);
+            paint.setTextAlign(Paint.Align.CENTER);
+            canvas.drawText(gameOver, boardMiddleX, boardMiddleY - centerText(), paint);
+            paint.setAlpha(255);
+        }
     }
 
     public void createBackgroundBitmap(int width, int height) {
@@ -232,4 +356,46 @@ public class MainView extends View {
         drawBackgroundGrid(canvas);
         drawInstructions(canvas);
     }
+
+    public void tick() {
+        currentTime = System.nanoTime();
+        try {
+            game.mGrid.tickAll(currentTime - lastFPSTime);
+        } catch (ConcurrentModificationException e) {
+            e.printStackTrace();
+        }
+        lastFPSTime = currentTime;
+    }
+
+    public void resyncTime() {
+        lastFPSTime = System.nanoTime();
+    }
+
+    public static int log2(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException();
+        }
+        return (int) (Math.log(n) / Math.log(2));
+    }
+
+    private void getLayout(int width, int height) {
+        cellSize = Math.min(width / (game.numSquaresX + 1), height / (game.numSquaresY + 3));
+        gridWidth = cellSize / 7;
+        screenMiddleX = width / 2;
+        screenMiddleY = height / 2;
+        boardMiddleX = screenMiddleX;
+        boardMiddleY = screenMiddleY + cellSize / 2;
+        iconSize = cellSize / 2;
+
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTextSize(cellSize);
+        textSize = cellSize * cellSize / Math.max(cellSize, paint.measureText("0000"));
+        titleTextSize = textSize / 3;
+        bodyTextSize = (int) (textSize / 1.5);
+        instructionsTextSize = bodyTextSize;
+        headerTextSize = textSize * 2;
+        gameOverTextSize = headerTextSize;
+    }
+
+
 }

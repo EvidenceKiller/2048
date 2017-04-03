@@ -30,7 +30,7 @@ public class MainGame {
     private MainView mView;
 
     public static final int SPAWN_ANIMATION = -1;
-    public static final int MOVE_ANIMTION = 0;
+    public static final int MOVE_ANIMATION = 0;
     public static final int MERGE_ANIMATION = 1;
 
     public static final int FADE_GLOBAL_ANIMATION = 0;
