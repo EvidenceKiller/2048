@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
@@ -395,7 +396,67 @@ public class MainView extends View {
         instructionsTextSize = bodyTextSize;
         headerTextSize = textSize * 2;
         gameOverTextSize = headerTextSize;
+        textPaddingSize = (int) (textSize / 3);
+        iconPaddingSize = textPaddingSize;
+
+        halfNumSquareX = game.numSquaresX / 2;
+        halfNumSquareY = game.numSquaresY / 2;
+
+        startingX = (int) (boardMiddleX - (cellSize + gridWidth) * halfNumSquareX - gridWidth / 2);
+        endingX = (int) (boardMiddleX + (cellSize + gridWidth) * halfNumSquareX + gridWidth / 2);
+        startingY = (int) (boardMiddleY - (cellSize + gridWidth) * halfNumSquareY - gridWidth / 2);
+        endingY = (int) (boardMiddleY + (cellSize + gridWidth) * halfNumSquareY + gridWidth / 2);
+        paint.setTextSize(titleTextSize);
+
+        int textShiftYAll = centerText();
+
+        sYAll = (int) (startingY - cellSize * 1.5);
+        titleStartYAll = (int) (sYAll + textPaddingSize + titleTextSize / 2 - textShiftYAll);
+        bodyStartYAll = (int) (titleStartYAll + textPaddingSize + titleTextSize / 2 + bodyTextSize / 2);
+
+        titleWidthHighScore = (int) (paint.measureText(highScore));
+        titleWidthScore = (int) (paint.measureText(score));
+        paint.setTextSize(bodyTextSize);
+
+        textShiftYAll = centerText();
+        eYAll = (int) (bodyStartYAll + textShiftYAll + bodyTextSize / 2 + textPaddingSize);
+
+        sYIcons = (startingY + eYAll) / 2 - iconSize / 2;
+        sXNewGame = (endingX - iconSize);
+        resyncTime();
+        getScreenSize = false;
+        initRectangleDrawables();
     }
+
+    private void initRectangleDrawables() {
+        paint.setTextSize(textSize);
+        paint.setTextAlign(Paint.Align.CENTER);
+
+        Drawable lastDrawable = cellRectangle[11];
+        Drawable[] newArray = new Drawable[titleTexts.length + 1];
+        newArray[0] = cellRectangle[0];
+
+        for (int i = 0; i < titleTexts.length + 1; i++) {
+            Drawable rect;
+            if (i <= 11) {
+                rect = cellRectangle[i];
+            } else {
+                rect = lastDrawable;
+            }
+            Bitmap bitmap = Bitmap.createBitmap(cellSize, cellSize, Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawDrawable(canvas, rect, 0, 0, cellSize, cellSize);
+            drawCellText(canvas, i, 0, 0);
+            rect = new BitmapDrawable(bitmap);
+            newArray[i] = rect;
+        }
+    }
+
+    private int centerText() {
+        return (int) ((paint.descent() + paint.ascent()) / 2);
+    }
+
+
 
 
 }
