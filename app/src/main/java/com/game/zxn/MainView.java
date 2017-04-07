@@ -1,6 +1,7 @@
 package com.game.zxn;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -10,6 +11,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
+
+import com.game.zxn.settings.SettingsPreference;
 
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -104,19 +107,23 @@ public class MainView extends View {
     };
 
     public MainView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public MainView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public MainView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        this(context, attrs, defStyleAttr, 0);
     }
 
     public MainView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        Resources resources = context.getResources();
+        int variety = SettingsPreference.getInt(SettingsPreference.KEY_VARIETY, 0);
+        String[] varietyEntries = resources.getStringArray(R.array.variety_entries);
+        titleTexts = varietyEntries[variety].split("\\|");
     }
 
     @Override
