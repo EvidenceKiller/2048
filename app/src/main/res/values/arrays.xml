@@ -25,7 +25,7 @@
     <string-array name="settings_variety_entries" translatable="false">
         <item>2048</item>
         <item>4096</item>
-        <item>@string/settings_variety_dynasties</item>
+        <item>@string/settings_variety_chinese_dynasties</item>
         <item>@string/settings_variety_periodic_table_of_elements_first_twenty</item>
         <item>2147483648</item>
     </string-array>

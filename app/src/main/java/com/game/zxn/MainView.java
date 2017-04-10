@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -124,6 +125,59 @@ public class MainView extends View {
         int variety = SettingsPreference.getInt(SettingsPreference.KEY_VARIETY, 0);
         String[] varietyEntries = resources.getStringArray(R.array.variety_entries);
         titleTexts = varietyEntries[variety].split("\\|");
+        maxValue = (int) Math.pow(2, titleTexts.length);
+
+        inverseMode = SettingsPreference.getBoolean(SettingsPreference.KEY_INVERSE_MODE, false);
+        game = new MainGame(context, this);
+        if (titleTexts.length > 16 && titleTexts.length <= 25) {
+            game.numSquaresX = 5;
+            game.numSquaresY = 5;
+        } else if (titleTexts.length > 25) {
+            game.numSquaresX = 6;
+            game.numSquaresY = 6;
+        }
+
+        try {
+            highScore = resources.getString(R.string.high_score);
+            score = resources.getString(R.string.score);
+            youWin = resources.getString(R.string.you_win);
+            gameOver = resources.getString(R.string.game_over);
+            if (!inverseMode) {
+                instructions = resources.getString(R.string.instructions)
+                        + " " + titleTexts[0] + "=" + titleTexts[1];
+            } else {
+                instructions = resources.getString(R.string.instructuons_inversed);
+            }
+            backgroundRectangle = resources.getDrawable(R.drawable.background_rectangle);
+            cellRectangle[0] = resources.getDrawable(R.drawable.cell_rectangle);
+            cellRectangle[1] = resources.getDrawable(R.drawable.cell_rectangle_2);
+            cellRectangle[2] = resources.getDrawable(R.drawable.cell_rectangle_4);
+            cellRectangle[3] = resources.getDrawable(R.drawable.cell_rectangle_8);
+            cellRectangle[4] = resources.getDrawable(R.drawable.cell_rectangle_16);
+            cellRectangle[5] = resources.getDrawable(R.drawable.cell_rectangle_32);
+            cellRectangle[6] = resources.getDrawable(R.drawable.cell_rectangle_64);
+            cellRectangle[7] = resources.getDrawable(R.drawable.cell_rectangle_128);
+            cellRectangle[8] = resources.getDrawable(R.drawable.cell_rectangle_256);
+            cellRectangle[9] = resources.getDrawable(R.drawable.cell_rectangle_512);
+            cellRectangle[10] = resources.getDrawable(R.drawable.cell_rectangle_1024);
+            cellRectangle[11] = resources.getDrawable(R.drawable.cell_rectangle_2048);
+            settingIcon = resources.getDrawable(R.drawable.ic_action_refresh);
+            lightUpRectangle = resources.getDrawable(R.drawable.light_up_rectangle);
+            fadeRectangle = resources.getDrawable(R.drawable.fade_rectangle);
+            TEXT_WHITE = resources.getColor(R.color.text_white);
+            TEXT_BLACK = resources.getColor(R.color.text_black);
+            TEXT_BROWN = resources.getColor(R.color.text_brown);
+            backgroundColor = resources.getColor(R.color.background);
+            Typeface font = Typeface.createFromAsset(resources.getAssets(), "ClearSans-Bold.ttf");
+            paint.setTypeface(font);
+            paint.setAntiAlias(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        listener = new InputListener(this);
+        setOnTouchListener(listener);
+        setOnKeyListener(listener);
+        game.newGame();
     }
 
     @Override
