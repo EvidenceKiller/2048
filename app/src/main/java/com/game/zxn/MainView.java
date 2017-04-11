@@ -107,6 +107,36 @@ public class MainView extends View {
         }
     };
 
+    Runnable aiRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while(!game.won && !game.lose) {
+                try {
+                    int bestMove = ai.getBestMove();
+                    aiHandler.sendMessage(aiHandler.obtainMessage(0, bestMove));
+                } catch (NullPointerException npe) {
+                    npe.printStackTrace();
+                    break;
+                }
+                if (inverseMode) {
+                    aiRunning = false;
+                    aiThread = null;
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ie) {
+                    ai = null;
+                    break;
+                }
+            }
+        }
+    };
+
+    Thread aiThread;
+    boolean aiRunning = false;
+
     public MainView(Context context) {
         this(context, null);
     }
@@ -517,7 +547,21 @@ public class MainView extends View {
         return (int) ((paint.descent() + paint.ascent()) / 2);
     }
 
+    public void startAi() {
+        if (null != aiThread) {
+            stopAi();
+        }
+        ai = new AI(game);
+        aiThread = new Thread(aiRunnable);
+        aiThread.start();
+        aiRunning = true;
+    }
 
+    public void stopAi() {
+        aiThread.interrupt();
+        aiThread = null;
+        aiRunning = false;
+    }
 
 
 }
