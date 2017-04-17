@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Grid {
 
-    public Tile[][] filed;
+    public Tile[][] field;
     public Tile[][] lastFiled;
 
     public boolean canRevert = false;
@@ -20,11 +20,11 @@ public class Grid {
     public Grid(int sizeX, int sizeY) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-        filed = new Tile[sizeX][sizeY];
+        field = new Tile[sizeX][sizeY];
         lastFiled = new Tile[sizeX][sizeY];
-        for (int i = 0; i < filed.length; i++) {
-            for (int j = 0; j < filed[0].length; j++) {
-                filed[i][j] = null;
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[0].length; j++) {
+                field[i][j] = null;
                 lastFiled[i][j] = null;
             }
         }
@@ -40,9 +40,9 @@ public class Grid {
 
     public ArrayList<Cell> getAvailableCells() {
         ArrayList<Cell> availableCells = new ArrayList<Cell>();
-        for (int i = 0; i < filed.length; i++) {
-            for (int j = 0; j < filed[0].length; j++) {
-                if (filed[i][j] == null) {
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[0].length; j++) {
+                if (field[i][j] == null) {
                     availableCells.add(new Cell(i, j));
                 }
             }
@@ -64,7 +64,7 @@ public class Grid {
 
     public Tile getCellContent(Cell cell) {
         if (cell != null && isCellWithinBounds(cell)) {
-            return filed[cell.getX()][cell.getY()];
+            return field[cell.getX()][cell.getY()];
         } else {
             return null;
         }
@@ -72,40 +72,40 @@ public class Grid {
 
     public Tile getCellContent(int x, int y) {
         if (isCellWithinBounds(x, y)) {
-            return filed[x][y];
+            return field[x][y];
         } else {
             return null;
         }
     }
 
     public boolean isCellWithinBounds(Cell cell) {
-        return 0 <= cell.getX() && cell.getY() < filed.length
-                && 0 <= cell.getY() && cell.getY() < filed[0].length;
+        return 0 <= cell.getX() && cell.getY() < field.length
+                && 0 <= cell.getY() && cell.getY() < field[0].length;
     }
 
     public boolean isCellWithinBounds(int x, int y) {
-        return 0 <= x && x < filed.length
-                && 0 <= y && y < filed[0].length;
+        return 0 <= x && x < field.length
+                && 0 <= y && y < field[0].length;
     }
 
     public void insertTile(Tile tile) {
-        filed[tile.getX()][tile.getY()] = tile;
+        field[tile.getX()][tile.getY()] = tile;
     }
 
     public void removeTile(Tile tile) {
-        filed[tile.getX()][tile.getY()] = null;
+        field[tile.getX()][tile.getY()] = null;
     }
 
     public void saveTiles() {
         canRevert = true;
 
         lastFiled = new Tile[sizeX][sizeY];
-        for (int i = 0; i < filed.length; i++) {
-            for (int j = 0; j < filed[0].length; j++) {
-                if (filed[i][j] == null) {
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[0].length; j++) {
+                if (field[i][j] == null) {
                     lastFiled[i][j] = null;
                 } else {
-                    lastFiled[i][j] = new Tile(i, j, filed[i][j].getValue());
+                    lastFiled[i][j] = new Tile(i, j, field[i][j].getValue());
                 }
             }
         }
@@ -117,9 +117,9 @@ public class Grid {
         for (int i = 0; i < lastFiled.length; i++) {
             for (int j = 0; j < lastFiled[0].length; j++) {
                 if (lastFiled[i][j] == null) {
-                    filed[i][j] = null;
+                    field[i][j] = null;
                 } else {
-                    filed[i][j] = new Tile(i, j, lastFiled[i][j].getValue());
+                    field[i][j] = new Tile(i, j, lastFiled[i][j].getValue());
                 }
             }
         }
@@ -128,18 +128,18 @@ public class Grid {
     @Override
     protected Grid clone() {
         Tile[][] newFiled = new Tile[sizeX][sizeY];
-        for (int i = 0; i < filed.length; i++) {
-            for (int j = 0; j < filed[0].length; j++) {
-                if (filed[i][j] == null) {
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[0].length; j++) {
+                if (field[i][j] == null) {
                     newFiled[i][j] = null;
                 } else {
-                    newFiled[i][j] = new Tile(i, j, filed[i][j].getValue());
+                    newFiled[i][j] = new Tile(i, j, field[i][j].getValue());
                 }
             }
         }
 
         Grid newGrid = new Grid(sizeX, sizeY);
-        newGrid.filed = newFiled;
+        newGrid.field = newFiled;
         return newGrid;
     }
 }

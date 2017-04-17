@@ -27,16 +27,16 @@ public class MainView extends View {
 
     private Paint paint = new Paint();
 
-    private MainGame game;
+    public MainGame game;
 
     private InputListener listener;
 
     private AI ai;
 
     private boolean getScreenSize = true;
-    private int cellSize = 0;
+    public int cellSize = 0;
     private float textSize = 0;
-    private int gridWidth = 0;
+    public int gridWidth = 0;
     private int screenMiddleX = 0;
     private int screenMiddleY = 0;
     private int boardMiddleX = 0;
@@ -49,15 +49,15 @@ public class MainView extends View {
     private Bitmap background = null;
     private int backgroundColor;
 
-    private static final int TEXT_BLACK;
-    private static final int TEXT_WHITE;
-    private static final int TEXT_BROWN;
+    private static int TEXT_BLACK;
+    private static int TEXT_WHITE;
+    private static int TEXT_BROWN;
 
     private double halfNumSquareX;
     private double halfNumSquareY;
 
-    private int startingX;
-    private int startingY;
+    public int startingX;
+    public int startingY;
 
     private int endingX;
     private int endingY;
@@ -69,9 +69,9 @@ public class MainView extends View {
     private int titleWidthHighScore;
     private int titleWidthScore;
 
-    private int sYIcons;
-    private int sXNewGame;
-    private int iconSize;
+    public static int sYIcons;
+    public static int sXNewGame;
+    public static int iconSize;
 
     private long lastFPSTime = System.nanoTime();
     private long currentTime = System.nanoTime();
@@ -82,13 +82,13 @@ public class MainView extends View {
     private float instructionsTextSize;
     private float gameOverTextSize;
 
-    private boolean refreshLastTime = true;
+    public boolean refreshLastTime = true;
 
     private String highScore, score, youWin, gameOver, instructions;
 
     private String[] titleTexts;
 
-    private static int maxValue;
+    public static int maxValue;
 
     public static boolean inverseMode = false;
 
@@ -223,12 +223,12 @@ public class MainView extends View {
 
         drawScoreText(canvas);
 
-        if ((game.won || game.lose) && !game.aGrid.isAnimationActive()) {
+        if ((game.won || game.lose) && !game.mAnimationGrid.isAnimationActive()) {
             drawNewGameButton(canvas);
         }
         drawCells(canvas);
         drawEndGameState(canvas);
-        if (game.aGrid.isAnimationActive()) {
+        if (game.mAnimationGrid.isAnimationActive()) {
             invalidate(startingX, startingY, endingX, endingY);
             tick();
         } else if ((game.won || game.lose) && refreshLastTime) {
@@ -345,7 +345,7 @@ public class MainView extends View {
                 int sY = startingY + gridWidth + (cellSize + gridWidth) + y;
                 int eY = sY + cellSize;
 
-                Tile currentTile = game.mGrid.filed[x][y];
+                Tile currentTile = game.mGrid.field[x][y];
                 if (null != currentTile) {
                     int value = currentTile.getValue();
                     int index = log2(value);
@@ -452,7 +452,7 @@ public class MainView extends View {
     public void tick() {
         currentTime = System.nanoTime();
         try {
-            game.mGrid.tickAll(currentTime - lastFPSTime);
+            game.mAnimationGrid.tickAll(currentTime - lastFPSTime);
         } catch (ConcurrentModificationException e) {
             e.printStackTrace();
         }
